@@ -1,8 +1,11 @@
 package com.ishland.c2me.rewrites.chunksystem.common;
 
 import com.ishland.c2me.base.common.config.ConfigSystem;
+import net.fabricmc.loader.api.FabricLoader;
 
 public class Config {
+
+    private static final boolean worldthreaderLoaded = FabricLoader.getInstance().isModLoaded("worldthreader");
 
     public static final boolean asyncSerialization = new ConfigSystem.ConfigAccessor()
             .key("chunkSystem.asyncSerialization")
@@ -26,13 +29,16 @@ public class Config {
                     Whether to allow POIs (Point of Interest) to be unloaded
                     Unloaded POIs are reloaded on-demand or when the corresponding chunks are loaded again,
                     which should not cause any behavior change
+
+                    Disabled automatically when worldthreader is loaded, because the two mods can conflict
+                    in POI unload timing and trigger chunk downgrade races.
                     \s
                     Note:
                     Vanilla never unloads POIs when chunks unload, causing small memory leaks
                     These leaks adds up and eventually cause issues after generating millions of chunks
                     in a single world instance
                     """)
-            .getBoolean(true, false);
+            .getBoolean(true, false) && !worldthreaderLoaded;
 
     public static final boolean suppressGhostMushrooms = new ConfigSystem.ConfigAccessor()
             .key("chunkSystem.suppressGhostMushrooms")

@@ -222,7 +222,10 @@ public class ReadFromDisk extends NewChunkStatus {
     }
 
     private Completable asyncSave(ChunkLoadingContext context, Chunk chunk) {
-        ((IThreadedAnvilChunkStorage) context.tacs()).getPointOfInterestStorage().saveChunk(chunk.getPos());
+        // Work around POI storage races observed with worldthreader + chunk-system rewrite.
+        if (!Config.isWorldthreaderLoaded()) {
+            ((IThreadedAnvilChunkStorage) context.tacs()).getPointOfInterestStorage().saveChunk(chunk.getPos());
+        }
         if (!chunk.tryMarkSaved()) {
             return Completable.complete();
         } else {

@@ -107,6 +107,10 @@ public class Config {
                     """)
             .getBoolean(false, false);
 
+    public static boolean isWorldthreaderLoaded() {
+        return worldthreaderLoaded;
+    }
+
     public static void init() {
         // intentionally empty
     }
